@@ -44,7 +44,7 @@ class RoutineNew(MycroftSkill):
 
 
         @intent_handler('routine.list.intent')
-        def handle_routine_set(self, message):
+        def handle_routine_list(self, message):
             #Needs to get routine list here
 
             self.settings['routine.tasks'] = [("Go shopping", "12 AM", "Monday, Thursday")]
