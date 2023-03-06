@@ -1,4 +1,4 @@
-from mycroft import MycroftSkill, intent_file_handler
+from mycroft import MycroftSkill, intent_handler
 
 
 class RoutineNew(MycroftSkill):
@@ -6,13 +6,10 @@ class RoutineNew(MycroftSkill):
         MycroftSkill.__init__(self)
 
     @intent_handler('goodmorning.set.intent')
-    def handle_goodmorning_set(self, message):
-        #Needs to set goodmorning routine here
-
-        #Says to user "ok I will say goodmorning everyday at 9am"
+    def handle_goodnight_goodmorning(self, message):
         self.speak_dialog('goodmorning.set')
-
-
+        
+        
     @intent_handler('routine.set.intent')
     def handle_routine_set(self, message):
         #Needs to set routine here
@@ -23,7 +20,7 @@ class RoutineNew(MycroftSkill):
 
         #appends to list of routines
 
-        self.settings['routine.tasks'].append((routine, '9 AM', 'everyday'))
+        self.settings['routine'] = [(routine, '9 AM', 'everyday')]
 
 
         #Says to user "alright I have created a routine for x at time everyday"
@@ -31,18 +28,16 @@ class RoutineNew(MycroftSkill):
         'routine': routine,
         'time': '9 AM',
         'days': 'everyday'})
-
-
-
+        
+        
     @intent_handler('routine.change.intent')
     def handle_routine_change(self, message):
         #Logic here
 
         #Says to user "Ok I have changed your routine to be at X time on X days"
         self.speak_dialog('routine.change')
-
-
-
+        
+        
     @intent_handler('routine.list.intent')
     def handle_routine_list(self, message):
         #Needs to get routine list here
@@ -56,6 +51,7 @@ class RoutineNew(MycroftSkill):
             'routine': r[0],
             'time': r[1],
             'days': r[2]})
+
 
 def create_skill():
     return RoutineNew()
