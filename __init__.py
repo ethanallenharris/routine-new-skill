@@ -1,6 +1,48 @@
 from mycroft import MycroftSkill, intent_handler
 from mycroft.util.parse import extract_datetime, normalize
 from mycroft.util.format import nice_time, nice_date
+import time
+import re
+
+
+
+def getTimeFromString(string):
+    if "evening" in response:
+        return "6:00 pm"
+    elif "night" in respone:
+        return "9:00 pm"
+    elif "dawn" in respone:
+        return "5:00 am"
+    elif "midday" in response:
+        return "12:00 pm"
+    elif "midnight" in response:
+        return "0:00 am"
+    else:
+        # Use regular expressions to extract the time
+        time_pattern = re.compile(r'(\d{1,2})\s+(\d{2})\s+(am|pm)')
+        match = time_pattern.search(input_str)
+
+        if match:
+            hour = int(match.group(1))
+            minute = match.group(2)
+            meridiem = match.group(3)
+
+            # Convert to 24-hour format if necessary
+            if meridiem:
+                if meridiem.lower() == 'pm' and hour != 12:
+                    hour += 12
+                elif meridiem.lower() == 'am' and hour == 12:
+                    hour = 0
+
+            # Format the time as a string and return
+            return time_str = f'{hour:02}:{minute}{meridiem.lower() if meridiem else ""}'
+        else:
+            return ""
+
+        
+        
+
+
 
 
 class RoutineNew(MycroftSkill):
@@ -82,16 +124,38 @@ class RoutineNew(MycroftSkill):
             
             #expect yes/no response
             #NEED DIALOG FILE
-            if self.ask_yesno('would you like to change the date or for ' + activity) == 'yes':
+            if self.ask_yesno('would you like to change the date for ' + activity) == 'yes':
                 #if user wants to change time/date of routine
                 
                 #Ask what time the user would like for this activity
                 #NEED DIALOG FILE
+                loop = True;
                 response = self.get_response('What time do you want for ' + activity)
                 
-                reminder_time, rest = (extract_datetime(response, now_local(), self.lang, default_time=DEFAULT_TIME) or (None, None))
+                while loop:
+                    try:     
+                                       
+                        time.sleep(3)
+                        
+                        #Needs to be like "9 AM" or "4 PM"
+                        
+                        reminder_time, rest = extract_datetime(response, now_local(), self.lang)
                 
-                self.speak_dialog(reminder_time)
+                
+                        #Things to check
+                        
+                        
+                        #Prescence check
+                        if response == "":
+                            return
+
+
+
+                        self.speak_dialog("ok " + activity + " has been set for " + getTimeFromString(response))
+                        
+                        loop = False
+                    except:
+                        self.speak_dialog('error, try again')
                 
                                                                                     
                 #response
