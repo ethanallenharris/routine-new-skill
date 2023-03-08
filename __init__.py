@@ -35,7 +35,7 @@ def getTimeFromString(string):
                     hour = 0
 
             # Format the time as a string and return
-            return time_str = f'{hour:02}:{minute}{meridiem.lower() if meridiem else ""}'
+            return str(f'{hour:02}:{minute}{meridiem.lower() if meridiem else ""}')
         else:
             return ""
 
@@ -124,7 +124,7 @@ class RoutineNew(MycroftSkill):
             
             #expect yes/no response
             #NEED DIALOG FILE
-            if self.ask_yesno('would you like to change the date for ' + activity) == 'yes':
+            if self.ask_yesno('would you like to change the time set for ' + activity) == 'yes':
                 #if user wants to change time/date of routine
                 
                 #Ask what time the user would like for this activity
@@ -139,7 +139,7 @@ class RoutineNew(MycroftSkill):
                         
                         #Needs to be like "9 AM" or "4 PM"
                         
-                        reminder_time, rest = extract_datetime(response, now_local(), self.lang)
+                        #reminder_time, rest = extract_datetime(response, now_local(), self.lang)
                 
                 
                         #Things to check
@@ -148,14 +148,19 @@ class RoutineNew(MycroftSkill):
                         #Prescence check
                         if response == "":
                             return
-
-
-
-                        self.speak_dialog("ok " + activity + " has been set for " + getTimeFromString(response))
+                        else:
+                            time = getTimeFromString(response)
+                            self.speak_dialog("ok " + activity + " has been set for " + time)
                         
                         loop = False
-                    except:
-                        self.speak_dialog('error, try again')
+                    except Exception as e:
+                        self.speak_dialog(e)
+                        response = self.get_response('What time do you want for ' + activity)
+                
+                
+                
+                
+                
                 
                                                                                     
                 #response
