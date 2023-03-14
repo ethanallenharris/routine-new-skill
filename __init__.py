@@ -175,32 +175,30 @@ class RoutineNew(MycroftSkill):
             #NEED DIALOG FILE
             if self.ask_yesno('would you like to change the time set for ' + activity) == 'yes':
                 #if user wants to change time/date of routine                
-                loop = True
                                 
                 #Ask what time the user would like for this activity
                 #NEED DIALOG FILE 
-                response = self.speak_dialog('What time do you want for ' + activity) 
+                #response = self.speak_dialog('What time do you want for ' + activity)
                                     
                 #Loop until user gives a valid time                
-                while loop:
-                    try:    
-                        #Loops until valid response given
-                        while not response:
-                            #while no response given, wait until response
-                            response = self.get_response() 
-
-                        #Ask what time the user would like for this activity
-                        #NEED DIALOG FILE 
-                        #response = self.get_response('What time do you want for ' + activity)                   
-                        military_time = getMilitaryTimeFromString(response)
-                        self.speak_dialog(military_time)
-                        time = getTimeFromString(military_time)
-                        loop = False         
+                try:                       
+                    response = self.get_response('get_time', data={"activity": activity}) 
+                    military_time = getMilitaryTimeFromString(response)
+                    time = getTimeFromString(military_time)
+                    #self.speak_dialog('confirm_time', data={"activity": activity, "time": time})
                    
-                    except Exception as e:
-                        response = None
-                        self.speak_dialog('Please rephrase your time in the example format of 9 20 am')
-                        response = self.get_response('What time do you want for ' + activity) 
+
+                    #Ask what time the user would like for this activity
+                    #NEED DIALOG FILE 
+                    #response = self.get_response('What time do you want for ' + activity)                   
+                    #military_time = getMilitaryTimeFromString(response)
+                    #self.speak_dialog(military_time)
+                    #time = getTimeFromString(military_time)       
+               
+                except Exception as e:
+                    response = None
+                    self.speak_dialog('Please phrase your time in the example format of 9 20 am')
+                    #response = self.get_response('What time do you want for ' + activity) 
                                 
                 
             self.speak_dialog("okay " + activity + " has been set for " + time + " everyday")
@@ -218,37 +216,23 @@ class RoutineNew(MycroftSkill):
             
             #if 'yes' go to days
             
-            days = "everyday"
+
             
             #expect yes/no response
             #NEED DIALOG FILE
             if self.ask_yesno('would you like to change the dates for ' + activity) == 'yes':
-                #if user wants to change time/date of routine                
-                response = None
-                                
+                #if user wants to change time/date of routine                          
                 #Ask what time the user would like for this activity
                 #NEED DIALOG FILE 
-                response = self.get_response('What days do you want for ' + activity) 
-                                    
-                #Loop until user gives a valid time                
-                while loop:
-                    try:    
-                        #Loops until valid response given
-                        while not response:
-                            #while no response given, wait until response
-                            response = self.get_response() 
-                            loop = True
-
-                        #Ask what time the user would like for this activity
-                        #NEED DIALOG FILE 
-                        #response = self.get_response('What time do you want for ' + activity)                   
-                        days = getDaysFromString(response)
-                        loop = False         
-                   
-                    except Exception as e:
-                        response = None
-                        self.speak_dialog('Please rephrase and individually list each ')
-                        response = self.get_response('What days do you want for ' + activity) 
+                try:    
+                    #response = self.get_response('What days do you want for ' + activity)                
+                    response = self.get_response('get_days', data={"activity": activity})
+                    days = getDaysFromString(response)
+                    #self.speak_dialog('confirm_days', data={"activity": activity, "days": days})                    
+                except Exception as e:
+                    self.speak_dialog('Please individually list each day')
+                    days = "everyday"             
+                
                                 
             
             
