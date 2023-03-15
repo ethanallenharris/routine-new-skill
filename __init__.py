@@ -163,12 +163,14 @@ class RoutineNew(MycroftSkill):
             
         else:
             #If user did supply activity
-            time = "12:00 am"
+            time = "12 am"
+            military_time = "12:00"
+            days = "everyday"
             #say to user "I have created activity for 9 AM everyday"
             self.speak_dialog('routine.set', data={
             'routine': activity,
             'time': time,
-            'days': 'everyday'})
+            'days': days})
             
             
             #expect yes/no response
@@ -235,7 +237,6 @@ class RoutineNew(MycroftSkill):
                 
                                 
             
-            
             #Outputs the time and days routine is set for
             self.speak_dialog("okay " + activity + " has been set for " + time + " on " + days)
             
@@ -255,23 +256,61 @@ class RoutineNew(MycroftSkill):
         
         
         #empties directory
-        #self.settings['routine'] = [];
+        self.settings['routine'] = [];
         
         #if user is cool with default time
         
         #will store data into a directory
-        #self.settings['routine'].append((activity, military_time, days))
+        self.settings['routine'].append((activity, military_time, days))
         
         
 
         
         
-    @intent_handler('routine.change.intent')
+    @intent_handler('time.change.intent')
     def handle_routine_change(self, message):
         #Logic here
+        #Needs to get activity from intent
+        
+        activity = message.data.get('activity')
+        loop = True
+        
+        #Loops through 'routine'
+        
+        #checks to see if any routines are being stored
+        for r in self.settings['routine']:
+            if activity in r[0]:
+                answer = self.ask_yesno('confirm.change_time', data={'activity': activity})
+                if answer == 'yes':
+                    if 'routine' in self.settings:
+                        while loop
+                            try:
+                                response = self.get_response('get_time', data={"activity": activity}) 
+                                military_time = getMilitaryTimeFromString(response)
+                                time = getTimeFromString(military_time)
+                                r[1] = military_time   
+                                self.speak_dialog(activity + ' has been set for ' + time)
+                                loop = False
+                            except:
+                                self.speak_dialog('Please phrase your time in the example format of 9 20 am')
+                break
+        else:  # Let user know that no routine was found under activity name
+            self.speak_dialog('not_found.activity', data={'activity': activity})
+            return
+        
+                
+            
 
-        #Says to user "Ok I have changed your routine to be at X time on X days"
-        self.speak_dialog('routine.change')
+            
+        #Says to user "Ok I have changed your routine to be at X time for X days"
+        
+        
+        
+        
+        
+        
+        
+        
         
         
     @intent_handler('routine.list.intent')
