@@ -1,9 +1,15 @@
 from mycroft import MycroftSkill, intent_handler
 from mycroft.util.parse import extract_datetime, normalize
 from mycroft.util.format import nice_time, nice_date
+from mycroft.util.time import now_local
+from mycroft.util import play_wav
 import time
 import re
 
+
+ROUTINE_PING = join(dirname(__file__), 'twoBeep.wav')
+
+MINUTES = 60 #seconds
 
 
 def getMilitaryTimeFromString(string):
@@ -97,11 +103,24 @@ def getDaysFromString(string):
 class RoutineNew(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
-
-    @intent_handler('goodmorning.set.intent')
-    def handle_goodnight_goodmorning(self, message):
-        self.speak_dialog('goodmorning.set')
         
+        self.schedule_repeating_event(self.__check_routine, datetime.now(),
+                                      0.5 * MINUTES, name='routine')
+
+        
+    def __check_routine(self, message):
+        #Get current local datetime
+        now = now_local()
+        #Get the military time value from datetime
+        military_time = now.strftime('%H:%M')
+        #Checks routine activities time
+        for r in self.settings.get('routine', []):
+            #If routine activity matches current military time
+            if military_time == r[1]:
+                #Play sound
+                play_wav(ROUTINE_PING)
+                self.speak_dialog('routine.activate', data={'activity': r[0]})
+    
         
     @intent_handler('routine.set.intent')
     def handle_routine_set(self, message):
