@@ -1,8 +1,10 @@
 from mycroft import MycroftSkill, intent_handler
+from os.path import dirname, join
 from mycroft.util.parse import extract_datetime, normalize
 from mycroft.util.format import nice_time, nice_date
 from mycroft.util.time import now_local
 from mycroft.util import play_wav
+from datetime import datetime, timedelta
 import time
 import re
 
@@ -104,8 +106,8 @@ class RoutineNew(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
         
-        self.schedule_repeating_event(self.__check_routine, datetime.now(),
-                                      0.5 * MINUTES, name='routine')
+    def initialize(self):    
+        self.schedule_repeating_event(self.__check_routine, datetime.now(), 0.5 * MINUTES, name='routine')
 
         
     def __check_routine(self, message):
@@ -302,7 +304,7 @@ class RoutineNew(MycroftSkill):
                 answer = self.ask_yesno('confirm.change_time', data={'activity': activity})
                 if answer == 'yes':
                     if 'routine' in self.settings:
-                        while loop
+                        while loop:
                             try:
                                 response = self.get_response('get_time', data={"activity": activity}) 
                                 military_time = getMilitaryTimeFromString(response)
