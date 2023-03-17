@@ -1,0 +1,6 @@
+remove {activity} from routine
+delete {activity} from routine
+remove routine for {activity}
+delete routine for {activity}
+cancel {activity} routine
+remove routine {activity}

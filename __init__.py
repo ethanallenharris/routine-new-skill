@@ -349,7 +349,27 @@ class RoutineNew(MycroftSkill):
         else:
             self.speak_dialog('not_found.activity', data={'activity': activity})
         
+    
+    @intent_handler('routine.remove.intent')
+    def handle_routine_remove(self, message):
+        # Get activity from intent
+        activity = message.data.get('activity')
 
+        # Loop through routines to find the one with the specified activity
+        for r in self.settings['routine']:
+            if activity in r[0]:
+                # Ask user to confirm they want to remove the routine
+                answer = self.ask_yesno('confirm.remove', data={'activity': activity})
+                if answer == 'yes':
+                    self.settings['routine'].remove(r)
+                    self.speak_dialog('routine.removed', data={'activity': activity})
+                else:
+                    self.speak_dialog('routine.not_removed', data={'activity': activity})
+                break
+        else:
+            self.speak_dialog('not_found.activity', data={'activity': activity})
+    
+    
         
     @intent_handler('routine.list.intent')
     def handle_routine_list(self, message):
