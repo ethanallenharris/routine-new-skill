@@ -317,22 +317,39 @@ class RoutineNew(MycroftSkill):
                 break
         else:  # Let user know that no routine was found under activity name
             self.speak_dialog('not_found.activity', data={'activity': activity})
-            return
+
         
                 
             
 
-            
-        #Says to user "Ok I have changed your routine to be at X time for X days"
+    @intent_handler('day.change.intent')
+    def handle_routine_change(self, message):
+        # Get activity from intent
+        activity = message.data.get('activity')
+        loop = True
+
+        # Loop through routines to find the one with the specified activity
+        for r in self.settings['routine']:
+            if activity in r[0]:
+                # Ask user if they want to change the day of the routine
+                answer = self.ask_yesno('confirm.change_day', data={'activity': activity})
+                if answer == 'yes':
+                    if 'routine' in self.settings:
+                        while loop:
+                            try:
+                                # Ask user for the new day(s) for the routine
+                                response = self.get_response('get_days', data={"activity": activity})
+                                days = getDaysFromString(response)
+                                r[2] = days
+                                self.speak_dialog(activity + ' has been set for ' + days)
+                                loop = False
+                            except:
+                                self.speak_dialog('Please individually list each day')
+                break
+        else:
+            self.speak_dialog('not_found.activity', data={'activity': activity})
         
-        
-        
-        
-        
-        
-        
-        
-        
+
         
     @intent_handler('routine.list.intent')
     def handle_routine_list(self, message):
