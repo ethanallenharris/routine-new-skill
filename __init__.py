@@ -27,11 +27,10 @@ def getMilitaryTimeFromString(string):
         return "0:00"
     else:
         # Use regular expressions to extract the time
-        time_pattern = re.compile(r'(\d{1,2})\s+(\d{2})\s+(am|pm)')
-        #match = re.search(r'(\d{1,2}):(\d{2})\s*(am|pm)', string)
+        time_pattern = re.compile(r'(\d{1,2})\s+(\d{2})\s+(am|pm)', re.IGNORECASE)
         match = time_pattern.search(string)
         
-        time_pattern2 = re.compile(r'(\d{1,2}):(\d{2})\s*(am|pm)')
+        time_pattern2 = re.compile(r'(\d{1,2})\s*(am|pm)', re.IGNORECASE)
         match2 = time_pattern2.search(string)
         
         if match:
@@ -39,8 +38,6 @@ def getMilitaryTimeFromString(string):
             minute = int(match.group(2))
             meridiem = match.group(3)
             
-            
-  
             
             # Convert to 24-hour format
             if meridiem:
@@ -51,16 +48,19 @@ def getMilitaryTimeFromString(string):
 
             #Format the time as a string and return
             return str(f'{hour:02}:{minute}')
-            
-            
-            
-        if match2:
+        elif match2:
             hour = int(match2.group(1))
             meridiem = match2.group(2)
             
             hour = hour % 12
             
-            return hour + ":00"
+            if meridiem:
+                if meridiem.lower() == 'pm' and hour != 12:
+                    hour += 12
+                elif meridiem.lower() == 'am' and hour == 12:
+                    hour = 0
+            
+            return str(f'{hour:02}:00')
             
             
             
@@ -123,6 +123,18 @@ class RoutineNew(MycroftSkill):
                 play_wav(ROUTINE_PING)
                 self.speak_dialog('routine.activate', data={'activity': r[0]})
     
+        
+    @intent_handler('test_set_time.intent')
+    def handle_set_time(self, message):  
+        try:
+            response = self.get_response('give me time') 
+            military_time = getMilitaryTimeFromString(response)
+            time = getTimeFromString(military_time)
+            self.speak_dialog(time)
+        except:
+            self.speak_dialog('Error occured in set time')
+        
+        
         
     @intent_handler('routine.set.intent')
     def handle_routine_set(self, message):
@@ -375,10 +387,10 @@ class RoutineNew(MycroftSkill):
     def handle_routine_list(self, message):
         #Needs to get routine list here
 
-        self.settings['routine.tasks'] = [("Go shopping", "12 AM", "Monday, Thursday")]
+        #self.settings['routine.tasks'] = [("Go shopping", "12 AM", "Monday, Thursday")]
 
         #Iterates through list of routine tasks
-        for r in self.settings['routine.tasks']:
+        for r in self.settings['routine']:
             #Says to user "alright I have created a routine for x at time everyday"
             self.speak_dialog('routine.list', data={
             'routine': r[0],
