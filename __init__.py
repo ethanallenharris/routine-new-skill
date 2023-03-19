@@ -14,6 +14,7 @@ ROUTINE_PING = join(dirname(__file__), 'twoBeep.wav')
 MINUTES = 60 #seconds
 
 
+#Function to return a military time from a user response
 def getMilitaryTimeFromString(string):
     if "evening" in string:
         return "18:00"
@@ -26,7 +27,7 @@ def getMilitaryTimeFromString(string):
     elif "midnight" in string:
         return "0:00"
     else:
-        # Use regular expressions to extract the time
+        #Use regular expressions to extract the time
         time_pattern = re.compile(r'(\d{1,2})\s+(\d{2})\s+(am|pm)', re.IGNORECASE)
         match = time_pattern.search(string)
         
@@ -39,7 +40,7 @@ def getMilitaryTimeFromString(string):
             meridiem = match.group(3)
             
             
-            # Convert to 24-hour format
+            #Convert to 24-hour format
             if meridiem:
                 if meridiem.lower() == 'pm' and hour != 12:
                     hour += 12
@@ -66,9 +67,13 @@ def getMilitaryTimeFromString(string):
             
             
 def getTimeFromString(string):
-    #string should be in format of "00:00"
+    #String should be in format of "00:00"
+    
+    #Split string into hour and minutes
     hour, minute = map(int, string.split(":"))
+    #Get correct meridiam (am/pm)
     am_pm = 'am' if hour < 12 else 'pm'
+    #Hour should not exceed 12. (13 pm doesnt exist)
     hour = hour % 12
     if hour == 0:
         hour = 12
@@ -84,13 +89,13 @@ def getTimeFromString(string):
                 
 
 def getDaysFromString(string):
-    # Define a regular expression pattern for matching day names
+    #Define a regular expression pattern for matching day names
     day_pattern = re.compile(r'\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b', re.IGNORECASE)
 
-    # Find all matches of the day pattern in the input string
+    #Find all matches of the day pattern in the input string
     matches = day_pattern.findall(string)
 
-    # Format the list of matches as a comma-separated string of day names
+    #Format the list of matches as a comma-separated string of day names
     days_string = ', '.join(matches)
 
     return days_string           
@@ -128,17 +133,6 @@ class RoutineNew(MycroftSkill):
                 self.speak_dialog('routine.activate', data={'activity': r[0]})
     
         
-    @intent_handler('test_set_time.intent')
-    def handle_set_time(self, message):  
-        try:
-            response = self.get_response('give me time') 
-            military_time = getMilitaryTimeFromString(response)
-            time = getTimeFromString(military_time)
-            self.speak_dialog(time)
-        except:
-            self.speak_dialog('Error occured in set time')
-        
-        
     #Intent to create a new routine activity    
     @intent_handler('routine.set.intent')
     def handle_routine_set(self, message):
@@ -157,8 +151,8 @@ class RoutineNew(MycroftSkill):
                 time = getTimeFromString(military_time)
                 break
             except Exception as e:
-                #Add dialog
-                self.speak_dialog('Sorry but I could not recognise the time provided.')
+                #Output 'time not recognised'
+                self.speak_dialog('incorrect.time')
         
         #Loops until user proivdes a valid set of days for activity                                    
         while True:
@@ -167,20 +161,23 @@ class RoutineNew(MycroftSkill):
                 days = getDaysFromString(response)
                 break                   
             except Exception as e:
-                #Add dialog
-                self.speak_dialog('Please individually list each day')
+                #Output 'Induvidually list each day'
+                self.speak_dialog('incorrect.days')
         
         
         try:        
-            #Outputs the time and days routine is set for
-            self.speak_dialog("okay " + activity + " has been set for " + time + " on " + days)
+            #Outputs the time and days routine activity is set for
+            self.speak_dialog('routine.set', data={
+                'activity': activity,
+                'time': time,
+                'days': days})
             
             #Will store data into a dictionary
             self.settings['routine'].append((activity, military_time, days))
         except:
-            self.speak_dialog('Please individually list each day')
+            self.speak_dialog('')
             
-        
+    #TODO, ADD DIALOG, FIX COMMENTS  vvvvvvvvv ------------------------------------------------------    
         
     @intent_handler('time.change.intent')
     def handle_routine_change(self, message):
@@ -190,7 +187,7 @@ class RoutineNew(MycroftSkill):
         activity = message.data.get('activity')
         
         
-        #variable 'found' will highlight if successfully found the activity in routine
+        #Variable 'found' will highlight if successfully found the activity in routine
         found = False
         
         #Loops through 'routine'
