@@ -117,10 +117,12 @@ class RoutineNew(MycroftSkill):
         now = now_local()
         #Get the military time value from datetime
         military_time = now.strftime('%H:%M')
+        #Get the day of week from datetime
+        day_of_week = now.strftime('%A')
         #Checks routine activities time
         for r in self.settings.get('routine', []):
             #If routine activity matches current military time
-            if military_time == r[1]:
+            if military_time == r[1] and day_of_week.lower in r[2]:
                 #Play sound
                 play_wav(ROUTINE_PING)
                 self.speak_dialog('routine.activate', data={'activity': r[0]})
@@ -240,6 +242,9 @@ class RoutineNew(MycroftSkill):
                 break
         else:
             self.speak_dialog('not_found.activity', data={'activity': activity})
+            
+            
+            
         
     
     @intent_handler('routine.remove.intent')
