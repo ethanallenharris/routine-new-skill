@@ -188,61 +188,71 @@ class RoutineNew(MycroftSkill):
         #Needs to get activity from intent
         
         activity = message.data.get('activity')
-        loop = True
+        
+        
+        #variable 'found' will highlight if successfully found the activity in routine
+        found = False
         
         #Loops through 'routine'
         
         #checks to see if any routines are being stored
         for r in self.settings['routine']:
             if activity in r[0]:
+                found = True
                 answer = self.ask_yesno('confirm.change_time', data={'activity': activity})
                 if answer == 'yes':
                     if 'routine' in self.settings:
-                        while loop:
+                        while True:
                             try:
-                                response = self.get_response('get_time', data={"activity": activity}) 
+                                #Asks user for time                       
+                                response = self.get_response('get_time', data={"activity": activity})
+                                #Function extracts a military time from user response 
                                 military_time = getMilitaryTimeFromString(response)
+                                #Function returns a more text to speech friendly time
                                 time = getTimeFromString(military_time)
                                 r[1] = military_time   
                                 self.speak_dialog(activity + ' has been set for ' + time)
-                                loop = False
-                            except:
-                                self.speak_dialog('Please phrase your time in the example format of 9 20 am')
-                break
+                                break
+                            except Exception as e:
+                                #Add dialog
+                                self.speak_dialog('Sorry but I could not recognise the time provided.')
         else:  # Let user know that no routine was found under activity name
-            self.speak_dialog('not_found.activity', data={'activity': activity})
+            if not found:
+                self.speak_dialog('not_found.activity', data={'activity': activity})
 
         
                 
             
 
     @intent_handler('day.change.intent')
-    def handle_routine_change(self, message):
+    def handle_routine_day_change(self, message):
         # Get activity from intent
         activity = message.data.get('activity')
-        loop = True
+        
+        #variable 'found' will highlight if successfully found the activity in routine
+        found = False
 
         # Loop through routines to find the one with the specified activity
         for r in self.settings['routine']:
             if activity in r[0]:
+                found = True
                 # Ask user if they want to change the day of the routine
                 answer = self.ask_yesno('confirm.change_day', data={'activity': activity})
                 if answer == 'yes':
                     if 'routine' in self.settings:
-                        while loop:
+                        while True:
                             try:
                                 # Ask user for the new day(s) for the routine
                                 response = self.get_response('get_days', data={"activity": activity})
                                 days = getDaysFromString(response)
                                 r[2] = days
                                 self.speak_dialog(activity + ' has been set for ' + days)
-                                loop = False
+                                break
                             except:
                                 self.speak_dialog('Please individually list each day')
-                break
         else:
-            self.speak_dialog('not_found.activity', data={'activity': activity})
-            
+            if not found:
+                self.speak_dialog('not_found.activity', data={'activity': activity})
             
             
         
