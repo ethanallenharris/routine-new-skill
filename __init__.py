@@ -106,7 +106,7 @@ def getTimeFromString(string):
     #Split string into hour and minutes
     hour, minute = map(int, string.split(":"))
     #Get correct meridiam (am/pm)
-    am_pm = 'am' if hour < 12 else 'pm'
+    am_pm = 'a.m.' if hour < 12 else 'p.m.'
     #Hour should not exceed 12. (13 pm doesnt exist)
     hour = hour % 12
     if hour == 0:
