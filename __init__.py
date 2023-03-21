@@ -14,57 +14,91 @@ ROUTINE_PING = join(dirname(__file__), 'twoBeep.wav')
 MINUTES = 60 #seconds
 
 
-#Function to return a military time from a user response
+
+
 def getMilitaryTimeFromString(string):
+    #Use regular expression pattern for the format "00:00"
+    military_pattern = re.compile(r'^\d{2}:\d{2}$')
+
+    #If time provided is already in military time format
+    if military_pattern.match(string):
+        return string
+
+    #Searches for common time of day names    
     if "evening" in string:
         return "18:00"
+    elif "midnight" in string:
+        return "0:00"
     elif "night" in string:
         return "21:00"
     elif "dawn" in string:
         return "5:00"
     elif "midday" in string:
         return "12:00"
-    elif "midnight" in string:
-        return "0:00"
     else:
-        #Use regular expressions to extract the time
-        time_pattern = re.compile(r'(\d{1,2})\s+(\d{2})\s+(am|pm)', re.IGNORECASE)
-        match = time_pattern.search(string)
+        #Use regular expression pattern for tdifferent time formats
         
-        time_pattern2 = re.compile(r'(\d{1,2})\s*(am|pm)', re.IGNORECASE)
-        match2 = time_pattern2.search(string)
+        #Format "00:00 a.m." or "00:00 p.m."
+        regular_time_pattern = re.compile(r'^(\d{1,2}):(\d{2})\s+(a\.m\.|p\.m\.)$')
+        regular_time = regular_time_pattern.match(string)
         
-        if match:
-            hour = int(match.group(1))
-            minute = int(match.group(2))
-            meridiem = match.group(3)
-            
-            
-            #Convert to 24-hour format
-            if meridiem:
-                if meridiem.lower() == 'pm' and hour != 12:
-                    hour += 12
-                elif meridiem.lower() == 'am' and hour == 12:
-                    hour = 0
+        #Format "00 to 00"
+        time_to_pattern = re.compile(r'^(\d{1,2})\s+to\s+(\d{1,2})$')
+        time_to = time_to_pattern.match(string)
+        
+        #Format "00 past 00"
+        time_past_pattern = re.compile(r'^(\d{1,2})\s+past\s+(\d{1,2})$')
+        time_past = time_past_pattern.match(string)
+        
+        #Format "00"
+        time_pattern = re.compile(r'^(\d{1,2})$')
+        time = time_pattern.match(string)
+        
+        
+        #If user input is in format "00:00 a.m." or "00:00 p.m."
+        if regular_time:
+            groups = regular_time.groups()
+            hours = int(groups[0])
+            minutes = int(groups[1])
+            time_of_day = groups[2]
 
-            #Format the time as a string and return
-            return str(f'{hour:02}:{minute}')
+            if time_of_day == 'p.m.' and hours != 12:
+                hours += 12
+            elif time_of_day == 'a.m.' and hours == 12:
+                hours = 0
+
+            return '{:02d}:{:02d}'.format(hours, minutes)
+        #If user input is in format "00 to 00"    
+        elif time_to:
+            groups = time_to.groups()
+            hours = int(groups[1])
+            minutes = int(groups[0])
             
-        elif match2:
-            hour = int(match2.group(1))
-            meridiem = match2.group(2)
+            hours -= 1
+            if hours < 0:
+                hours = 0
             
-            hour = hour % 12
-            
-            if meridiem:
-                if meridiem.lower() == 'pm' and hour != 12:
-                    hour += 12
-                elif meridiem.lower() == 'am' and hour == 12:
-                    hour = 0
-            
-            return str(f'{hour:02}:00')
-            
-            
+            minutes = 60 - minutes
+            return '{:02d}:{:02d}'.format(hours, minutes)
+        #If user input is in format "00 to 00"  
+        elif time_past:
+            groups = time_past.groups()
+            hours = int(groups[1])
+            minutes = int(groups[0])
+            return '{:02d}:{:02d}'.format(hours, minutes)
+        #If user input is in format "00"  
+        elif time:
+            groups = time.groups()
+            hours = int(groups[0])
+            return '{:02d}:{:02d}'.format(hours, 0)
+        else:
+            return None
+
+
+
+
+
+
             
 def getTimeFromString(string):
     #String should be in format of "00:00"
@@ -97,7 +131,11 @@ def getDaysFromString(string):
 
     #Format the list of matches as a comma-separated string of day names
     days_string = ', '.join(matches)
-
+    
+    if "weekend" in string:
+        return "saturday and sunday"
+    elif "weekdays" in string:
+        return "monday, tuesday, wednesday, thursday and friday"
     return days_string           
         
         
@@ -288,6 +326,18 @@ class RoutineNew(MycroftSkill):
             'routine': r[0],
             'time': getTimeFromString(r[1]),
             'days': r[2]})
+
+
+
+    @intent_handler('test_set_time.intent')
+    def handle_set_time(self, message): 
+       try:
+           response = self.get_response('give me time')
+           military_time = getMilitaryTimeFromString(response)
+           time = getTimeFromString(military_time)
+           self.speak_dialog(time)
+       except:
+           self.speak_dialog('Error occured in set time')
 
 
 def create_skill():
