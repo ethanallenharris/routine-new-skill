@@ -215,25 +215,21 @@ class RoutineNew(MycroftSkill):
         except:
             self.speak_dialog('')
             
-    #TODO, ADD DIALOG, FIX COMMENTS  vvvvvvvvv ------------------------------------------------------    
         
     @intent_handler('time.change.intent')
     def handle_routine_change(self, message):
-        #Logic here
-        #Needs to get activity from intent
-        
+        #Get activity from intent
         activity = message.data.get('activity')
         
-        
-        #Variable 'found' will highlight if successfully found the activity in routine
+        #Variable 'found' will highlight if successfully found the activity in routine dictionary
         found = False
         
         #Loops through 'routine'
-        
-        #checks to see if any routines are being stored
         for r in self.settings['routine']:
             if activity in r[0]:
+                #If activity is found
                 found = True
+                #Ask if user they are sure they want to change the time for this activity
                 answer = self.ask_yesno('confirm.change_time', data={'activity': activity})
                 if answer == 'yes':
                     if 'routine' in self.settings:
@@ -246,11 +242,11 @@ class RoutineNew(MycroftSkill):
                                 #Function returns a more text to speech friendly time
                                 time = getTimeFromString(military_time)
                                 r[1] = military_time   
-                                self.speak_dialog(activity + ' has been set for ' + time)
+                                self.speak_dialog('time.change', data={'activity': activity, 'time': time})
                                 break
                             except Exception as e:
                                 #Add dialog
-                                self.speak_dialog('Sorry but I could not recognise the time provided.')
+                                self.speak_dialog('incorrect.time')
         else:  # Let user know that no routine was found under activity name
             if not found:
                 self.speak_dialog('not_found.activity', data={'activity': activity})
@@ -281,7 +277,7 @@ class RoutineNew(MycroftSkill):
                                 response = self.get_response('get_days', data={"activity": activity})
                                 days = getDaysFromString(response)
                                 r[2] = days
-                                self.speak_dialog(activity + ' has been set for ' + days)
+                                self.speak_dialog('day.change', data={'activity': activity, 'days': days})
                                 break
                             except:
                                 self.speak_dialog('Please individually list each day')
@@ -315,29 +311,14 @@ class RoutineNew(MycroftSkill):
         
     @intent_handler('routine.list.intent')
     def handle_routine_list(self, message):
-        #Needs to get routine list here
-
-        #self.settings['routine.tasks'] = [("Go shopping", "12 AM", "Monday, Thursday")]
-
         #Iterates through list of routine tasks
         for r in self.settings['routine']:
-            #Says to user "alright I have created a routine for x at time everyday"
+            #Individually output each activity in routine
             self.speak_dialog('routine.list', data={
             'routine': r[0],
             'time': getTimeFromString(r[1]),
             'days': r[2]})
 
-
-
-    @intent_handler('test_set_time.intent')
-    def handle_set_time(self, message): 
-       try:
-           response = self.get_response('give me time')
-           military_time = getMilitaryTimeFromString(response)
-           time = getTimeFromString(military_time)
-           self.speak_dialog(time)
-       except:
-           self.speak_dialog('Error occured in set time')
 
 
 def create_skill():
