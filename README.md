@@ -5,7 +5,12 @@ Allows the user to use mycroft to help set a routine for user
 
 
 ## Examples
-* "Add a routine {routine}"
+* "Add a routine"
+* "Change the days for {activity_name}"
+* "Change the time for {activity_name}"
+* "List my routine"
+* "Remove routine for {activity_name}"
+
 
 ## Credits
 Ethan Allen-Harris
@@ -18,4 +23,3 @@ Productivity
 #Mycroft
 #Skill
 #Routine
-
