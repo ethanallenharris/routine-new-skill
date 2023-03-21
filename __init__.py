@@ -165,7 +165,7 @@ class RoutineNew(MycroftSkill):
         #Checks routine activities time
         for r in self.settings.get('routine', []):
             #If routine activity matches current military time
-            if military_time == r[1] and day_of_week.lower in r[2]:
+            if military_time == r[1] and day_of_week.lower() in r[2]:
                 #Play sound
                 play_wav(ROUTINE_PING)
                 self.speak_dialog('routine.activate', data={'activity': r[0]})
