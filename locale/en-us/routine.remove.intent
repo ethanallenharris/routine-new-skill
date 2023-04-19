@@ -1,5 +1,5 @@
-remove {activity} from routine
-delete {activity} from routine
+remove {activity} from (my| ) routine
+delete {activity} from (my| ) routine
 remove routine for {activity}
 delete routine for {activity}
 cancel {activity} routine

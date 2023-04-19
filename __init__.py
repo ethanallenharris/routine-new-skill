@@ -7,6 +7,7 @@ from mycroft.util import play_wav
 from datetime import datetime, timedelta
 import time
 import re
+import json
 
 
 ROUTINE_PING = join(dirname(__file__), 'twoBeep.wav')
@@ -320,6 +321,42 @@ class RoutineNew(MycroftSkill):
             'days': r[2]})
 
 
+
+    @intent_handler('web.delete.intent')
+    def web_app_delete(self, message):
+        routine = message.data.get('routine')
+        for r in self.settings['routine']:
+            if routine in r[0].lower():
+                self.settings['routine'].remove(r)
+                
+    
+    @intent_handler('web.edit.intent')
+    def web_app_edit(self, message):
+        routine = message.data.get('name')
+        for r in self.settings['routine']:
+            if routine in r[0].lower():
+                routine_time = message.data.get('time')
+                routine_days = message.data.get('days')
+                # Apply changes
+                r[1] = routine_time
+                r[2] = routine_days
+                
+    @intent_handler('web.new.intent')
+    def web_app_edit(self, message):
+        routine = message.data.get('name')
+        routine_time = message.data.get('time')
+        routine_days = message.data.get('days')
+        self.settings['routine'].append((routine, routine_time, routine_days))
+        
+
+    
+    @intent_handler('nuke.intent')
+    def remove_all(self, message):
+        for r in self.settings['routine']:
+            self.settings['routine'].remove(r)
+        self.speak_dialog("routine has been reset")
+                
+        
 
 def create_skill():
     return RoutineNew()
