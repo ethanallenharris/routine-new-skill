@@ -1,1 +1,1 @@
-msx new {name} gap {time} gap {days}
+msx create {data}

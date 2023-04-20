@@ -343,10 +343,16 @@ class RoutineNew(MycroftSkill):
                 
     @intent_handler('web.new.intent')
     def web_app_edit(self, message):
-        routine = message.data.get('name')
-        routine_time = message.data.get('time')
-        routine_days = message.data.get('days')
-        self.settings['routine'].append((routine, routine_time, routine_days))
+        #routine = message.data.get('name')
+        #routine_time = message.data.get('time')
+        #routine_days = message.data.get('days')
+        #self.settings['routine'].append((routine, routine_time, routine_days))
+        
+        data = message.data.get('data')
+        
+        name, time, days = data.split('|')
+        
+        self.settings['routine'].append((name, time, days))
         
 
     
