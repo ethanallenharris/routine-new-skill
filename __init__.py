@@ -342,7 +342,7 @@ class RoutineNew(MycroftSkill):
                 r[2] = days
                 
     @intent_handler('web.new.intent')
-    def web_app_edit(self, message):
+    def web_app_new(self, message):
         #routine = message.data.get('name')
         #routine_time = message.data.get('time')
         #routine_days = message.data.get('days')
