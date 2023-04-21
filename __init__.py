@@ -333,14 +333,13 @@ class RoutineNew(MycroftSkill):
     
     @intent_handler('web.edit.intent')
     def web_app_edit(self, message):
-        routine = message.data.get('name')
+        data = message.data.get('data')
+        name, time, days = data.split('|')
         for r in self.settings['routine']:
-            if routine in r[0].lower():
-                routine_time = message.data.get('time')
-                routine_days = message.data.get('days')
+            if name.lower() in r[0].lower():
                 # Apply changes
-                r[1] = routine_time
-                r[2] = routine_days
+                r[1] = time
+                r[2] = days
                 
     @intent_handler('web.new.intent')
     def web_app_edit(self, message):
