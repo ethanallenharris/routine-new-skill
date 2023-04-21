@@ -198,7 +198,8 @@ class RoutineNew(MycroftSkill):
             try:                  
                 response = self.get_response('get_days', data={"activity": activity})
                 days = getDaysFromString(response)
-                break                   
+                if days != "":
+                    break 
             except Exception as e:
                 #Output 'Induvidually list each day'
                 self.speak_dialog('incorrect.days')
